@@ -1,0 +1,10 @@
+毕业论文: 基于轻量化神经网络的表情识别系统
+
+1. 目标：构建轻量化神经网络系统（主要在于模型）
+2. 数据集： FerPlus , RAF-DB
+3. 数据预处理：超分(48*48 ->224*224) + CLAHE光照增强 + 训练时随机变换
+4. 训练环境：Ubuntu2204 A100 pytorch
+5. 参与测试的模型:resnet18, resnet18+cbam,resnet18+vit, mobilev1,mobilev2,mobilev3small, Dynamic-MobileV3Small(我提出的模型)
+6. 主要方法：基于MobileNetV3Small的Backbone，引入动态感受野，用来对于不同的表情关注不同的特征位置，达到更加好的识别效果
+7. 实验结果: 以0.05GFlops的计算量需求达到了82.28%的总准确率，计算量略低于V3Small ,准确率略高于V3Small
+
