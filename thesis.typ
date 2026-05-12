@@ -681,6 +681,12 @@ $
 
 为提高模型对不同姿态、角度及空间变化的鲁棒性，降低模型过拟合风险，本文在训练阶段对输入图像采用了多种数据增强方法。数据增强能够通过对原始样本进行随机变换扩充训练数据分布，从而提升模型的泛化能力。
 
+#imagex(
+  image("figures/data_augmentation_visualization.png", width: 70%),
+  caption: [数据增强示例],
+  label-name: "img-data-augment",
+)
+
 === 随机翻转
 
 在人脸表情识别任务中，表情通常具有一定的左右对称性，因此本文采用随机水平翻转（Random Horizontal Flip）方法对训练图像进行增强。该方法以一定概率对输入图像进行左右翻转，从而增加模型对不同朝向人脸的适应能力。
@@ -730,50 +736,563 @@ $
 = 轻量化表情识别模型设计
 
 == 系统总体架构设计
+
+本文构建了一种基于轻量化神经网络的表情识别系统，系统主要包括数据预处理、模型训练以及表情识别三个部分。整体系统以 MobileNetV3Small 为基础网络，通过引入动态感受野模块增强模型对多尺度表情特征的提取能力，在保持较低计算复杂度的同时提高表情识别准确率。
+
+系统整体流程主要包括图像输入、数据预处理、特征提取以及表情分类等步骤。首先，对输入图像进行超分辨率重建与 CLAHE 光照增强，提高图像质量；随后，通过轻量化卷积神经网络提取深层表情特征；最后，通过分类器输出最终表情类别结果。
+
+#imagex(
+  image("figures/fer-allv2.png", width: 100%),
+  caption: [轻量化表情识别全流程],
+  label-name: "img-fer-all",
+)
+
 === 系统功能模块
+
+本文设计的轻量化表情识别系统主要由以下几个功能模块组成：
+
+(1) 数据预处理模块
+
+数据预处理模块主要负责图像增强与格式统一。由于 FerPlus 数据集原始分辨率较低，因此首先采用超分辨率重建方法将图像由：
+$48 times 48$
+提升至：
+$224 times 224$
+
+随后，利用 CLAHE 光照增强算法改善图像亮度与对比度，提高模型对复杂光照环境的适应能力。此外，在训练阶段还采用随机翻转、随机裁剪以及随机旋转等数据增强方法，提高模型泛化能力。
+
+(2) 特征提取模块
+
+特征提取模块是系统核心部分。本文以 MobileNetV3Small 为基础 Backbone 网络，并在其基础上引入 Dynamic Receptive Field Block。
+
+该模块通过并行不同尺度的 Depthwise Convolution 提取多尺度表情特征，使模型能够更加有效地关注不同表情对应的关键区域，从而增强模型特征表达能力。
+
+(3) 表情分类模块
+
+分类模块主要负责对提取到的深层特征进行分类识别。网络最后通过全局平均池化层与全连接层输出不同表情类别概率，并利用 Softmax 分类器得到最终识别结果。
+
+系统最终能够实现对高兴、悲伤、愤怒、惊讶、中性等多种表情类别的自动识别。
+
 === 模型训练流程
+
+本文模型训练流程主要包括数据加载、数据增强、模型训练以及模型评估等步骤。
+
+首先，对 FerPlus 与 RAF-DB 数据集进行读取与预处理，并按照训练集、验证集以及测试集进行划分。随后，在训练阶段采用随机数据增强方法提高模型鲁棒性。
+
+模型训练过程中，将预处理后的人脸图像输入 Dynamic-MobileNetV3Small 网络中，通过前向传播提取表情特征，并利用交叉熵损失函数计算预测结果与真实标签之间的误差。
+
+随后，通过反向传播算法更新网络参数，并采用 Adam 优化器完成模型训练。在训练过程中，系统会记录模型准确率与损失函数变化情况，并保存最佳模型参数。
+
+实验环境基于 Ubuntu 22.04 操作系统，使用 PyTorch 深度学习框架完成模型训练与测试，硬件平台采用 NVIDIA A100 GPU，以提高模型训练效率。
+
 === 表情识别流程
 
+在实际表情识别过程中，系统首先获取输入人脸图像，并对图像进行尺寸调整与归一化处理。
+
+随后，经过超分辨率重建与 CLAHE 光照增强后，图像被输入 Dynamic-MobileNetV3Small 网络进行特征提取。网络通过动态感受野模块自动关注不同尺度的重要表情区域，例如眼部、眉毛以及嘴角区域。
+
+最后，模型通过 Softmax 分类器输出各表情类别概率，并将概率最大的类别作为最终识别结果。
+
+整个系统在保持较低计算复杂度的同时，能够实现较高准确率的人脸表情识别，适用于移动端与边缘设备中的实时视觉任务。
+
 == 基础对比模型设计
+
+为了验证本文提出 Dynamic-MobileNetV3Small 模型的有效性，实验选取了多种主流卷积神经网络与轻量化网络作为对比模型，包括 ResNet18、ResNet18 + CBAM、ResNet18 + ViT、MobileNetV1、MobileNetV2 以及 MobileNetV3Small 等模型。
+
+这些模型在网络结构、特征提取方式以及轻量化程度方面具有一定代表性，能够较好地反映不同模型在表情识别任务中的性能差异。
+
 === ResNet18 模型
+
+ResNet18 是经典残差网络（Residual Network）中的基础模型之一，由多个残差模块堆叠组成。ResNet18 通过引入残差连接（Residual Connection）有效缓解了深层网络训练中的梯度消失问题，提高了模型训练稳定性。
+
+残差结构的核心思想是通过恒等映射将输入特征直接传递到输出端，使网络能够更加容易学习特征残差，从而提高模型收敛速度与特征表达能力。
+
+由于 ResNet18 网络结构较为简单，同时具有较好的特征提取能力，因此被广泛应用于图像分类与人脸表情识别任务中。本文将其作为基础对比模型，用于分析不同轻量化模型的性能差异。
+
 === ResNet18 + CBAM 模型
+
+为了增强网络对关键区域特征的关注能力，本文在 ResNet18 基础上引入 CBAM（Convolutional Block Attention Module）注意力机制，构建 ResNet18 + CBAM 模型。
+
+CBAM 主要包括通道注意力与空间注意力两个部分。通道注意力用于学习不同通道的重要程度，而空间注意力则用于增强模型对关键区域的关注能力。
+
+在人脸表情识别任务中，不同表情通常对应不同关键区域。例如，“高兴”表情主要体现在嘴角区域，而“愤怒”表情则更加依赖眼部与眉毛特征。因此，引入注意力机制能够有效增强模型对重要区域的特征提取能力。
+
+通过该模型，可以分析注意力机制对于表情识别性能提升的影响。
+
 === ResNet18 + ViT 模型
+
+近年来，Transformer 结构逐渐被应用于计算机视觉领域。相比传统卷积神经网络，Vision Transformer（ViT）能够利用自注意力机制建模图像全局特征关系，从而提高复杂视觉任务中的特征表达能力。
+
+本文在 ResNet18 基础上结合 Vision Transformer 模块，构建 ResNet18 + ViT 模型。该模型首先利用卷积网络提取局部特征，随后通过 Transformer 结构学习不同区域之间的全局特征关系。
+
+相比传统卷积结构，ViT 能够更有效地捕获远距离特征依赖关系，因此在复杂场景下具有较强表现能力。然而，由于 Transformer 结构计算复杂度较高，因此在轻量化任务中的部署仍存在一定挑战。
+
+本文通过该模型分析 Transformer 结构在人脸表情识别任务中的性能表现。
+
 === MobileNetV1 模型
+
+MobileNetV1 是经典轻量化卷积神经网络，其核心思想是采用深度可分离卷积（Depthwise Separable Convolution）替代传统标准卷积，从而显著降低模型参数量与计算复杂度。
+
+相比传统卷积网络，MobileNetV1 能够在保持较低计算量的同时实现较好识别性能，因此被广泛应用于移动端视觉任务。
+
+然而，由于网络结构较浅，MobileNetV1 的特征表达能力相对有限，在复杂表情识别任务中容易出现准确率下降问题。
+
 === MobileNetV2 模型
+
+MobileNetV2 在 MobileNetV1 基础上进一步优化网络结构，引入了倒残差结构（Inverted Residual）与线性瓶颈结构（Linear Bottleneck）。
+
+倒残差结构首先通过 $1 times 1$ 卷积扩展通道数，然后利用深度可分离卷积提取特征，最后再通过 $1 times 1$ 卷积压缩通道数，从而在降低模型复杂度的同时提高特征表达能力。
+
+此外，MobileNetV2 使用线性激活函数减少低维空间中的信息损失，因此相比 MobileNetV1 具有更好的识别性能与训练稳定性。
+
 === MobileNetV3Small 模型
 
+MobileNetV3 是在 MobileNetV2 基础上进一步优化得到的轻量化网络，其结合了神经网络架构搜索（NAS）与注意力机制，在准确率与推理效率之间取得了更优平衡。
+
+本文采用 MobileNetV3Small 作为基础 Backbone 网络。相比 MobileNetV3Large，MobileNetV3Small 更适用于移动端与边缘设备中的实时任务。
+
+MobileNetV3Small 在网络结构中引入 SE 注意力机制，并采用 h-swish 激活函数替代传统 ReLU，从而提高模型非线性表达能力与特征提取效率。
+
+由于其具有较低 FLOPs 与较好识别性能，因此 MobileNetV3Small 成为本文 Dynamic-MobileNetV3Small 模型改进的基础网络结构。
+
 == Dynamic-MobileNetV3Small 模型设计
+
+为了进一步提高轻量化表情识别模型对复杂表情特征的提取能力，本文在 MobileNetV3Small 基础上提出了一种 Dynamic-MobileNetV3Small 模型。该模型通过引入 Dynamic Receptive Field Block，在保持较低计算复杂度的同时增强网络对多尺度表情特征的建模能力，从而提高模型整体识别性能。
+
+本文的核心改进主要体现在深度可分离卷积部分。传统 MobileNetV3Small 使用固定卷积核进行特征提取，而本文提出的动态感受野结构能够根据输入特征动态调整不同尺度卷积核的重要性，使模型更加适应不同表情区域的特征变化。
+
 === 网络整体结构
+
+本文提出的 Dynamic-MobileNetV3Small 以 MobileNetV3Small 为基础 Backbone 网络，整体网络结构仍然保持轻量化设计思想。
+
+网络前部主要负责低层特征提取，包括边缘、纹理以及局部结构信息；中后部网络则负责高层语义特征提取，用于学习不同表情对应的深层特征信息。
+
+在模型改进过程中，本文并未改变 MobileNetV3Small 的整体网络框架，而是将其中部分 Depthwise Convolution 替换为本文提出的 Dynamic Receptive Field Block，从而在尽量不增加模型参数量的条件下增强网络多尺度特征提取能力。
+
+此外，在分类部分，本文采用全局平均池化与全连接层完成最终表情分类，并利用 Dropout 减轻模型过拟合问题。
+
 === Dynamic Receptive Field Block 设计
+
+Dynamic Receptive Field Block 是本文提出模型的核心结构，其主要目标是增强网络对不同尺度表情特征的建模能力。
+
+传统卷积结构通常采用固定大小卷积核，因此感受野范围固定，难以同时兼顾局部细节特征与全局语义特征。而在人脸表情识别任务中，不同表情对应的关键区域尺度存在明显差异。
+
+例如：
+
+--“高兴”表情通常更加依赖嘴角局部变化；
+
+--“惊讶”表情则涉及更大范围的面部肌肉变化。
+
+因此，固定感受野卷积难以充分适应复杂表情特征。
+
+为解决该问题，本文提出 Dynamic Receptive Field Block，通过并行不同尺度 Depthwise Convolution 提取多尺度特征，并利用动态权重融合机制自适应调整不同感受野的重要程度，从而提高模型特征表达能力。
+
+整个模块主要包括：
+
++ 并行多尺度 Depthwise Convolution
++ 全局特征感知
++ 自适应权重生成
++ 动态特征融合
+
 === 并行 3×3 与 5×5 Depthwise Conv
+
+在 Dynamic Receptive Field Block 中，本文采用并行的：
+$3 times 3$,
+$5 times 5$
+Depthwise Convolution 提取不同尺度特征。
+
+其中：
+
+--$3 times 3$ 卷积更加关注局部细粒度纹理信息；
+
+--$5 times 5$ 卷积能够获取更加广泛的上下文特征。
+
+Depthwise Convolution 采用逐通道卷积方式，其每个卷积核仅作用于单独输入通道，因此相比传统卷积具有更低计算复杂度。
+
+设输入特征为：$x$
+
+则模块输出可以表示为：
+
+$x_3 = "DWConv"_(3 times 3)(x)$
+
+$x_5 = "DWConv"_(5 times 5)(x)$
+
+通过同时提取不同尺度特征，模型能够更加有效地学习复杂表情中的局部与全局信息，从而提高表情识别能力。
+
 === 自适应权重融合机制
+
+为了动态调整不同感受野的重要程度，本文设计了一种自适应权重融合机制。
+
+首先，对输入特征进行全局平均池化（Global Average Pooling），获取全局上下文信息：$x_g = "GAP"(x)$
+
+随后，通过全连接层生成不同卷积尺度对应的权重系数：$w = "Softmax"("FC"(x_g))$
+
+其中：$w_3$, $w_5$
+分别表示：$3 times 3$, $5 times 5$
+
+卷积对应的动态权重。
+
+最终输出结果为： $y = w_3 x_3 + w_5 x_5$
+
+通过 Softmax 函数约束权重和为 1，使模型能够根据输入表情特征动态选择更加合适的感受野范围。
+
+相比固定卷积结构，该方法能够增强模型对复杂表情区域的自适应建模能力。
+
 === 特征融合流程
 
-== 模型复杂度分析
-=== 参数量分析
-=== FLOPs 分析
-=== 推理速度分析
-=== 模型轻量化优势分析
+Dynamic Receptive Field Block 的整体特征融合流程如下：
 
+(1) 输入特征首先进入并行多尺度 Depthwise Convolution 分支；
+
+(2) 不同尺度卷积分别提取局部特征与大范围上下文特征；
+
+(3) 输入特征通过全局平均池化生成全局上下文信息；
+
+(4) 利用全连接层与 Softmax 函数生成动态权重；
+
+(5) 对不同尺度特征进行加权融合；
+
+(6) 输出融合后的多尺度表情特征。
+
+该结构能够根据不同输入表情动态调整感受野范围，使模型更加关注关键区域特征，同时保持较低计算复杂度。
+
+实验结果表明，本文提出的 Dynamic-MobileNetV3Small 模型在仅约 0.05 GFLOPs 的计算量条件下，实现了较高表情识别准确率，验证了动态感受野机制在轻量化表情识别任务中的有效性。
 
 = 实验设计与结果分析
 
 == 实验环境配置
+
+为了验证本文提出 Dynamic-MobileNetV3Small 模型的有效性，本文基于 Ubuntu Linux 平台搭建深度学习实验环境，并使用 PyTorch 深度学习框架完成模型训练与测试。实验过程中采用高性能 GPU 服务器进行模型训练，以保证模型训练效率与实验结果稳定性。
+
 === 硬件环境
+
+本文实验服务器采用 Intel Xeon 高性能多核处理器与 NVIDIA A100 GPU 作为主要计算平台，具体硬件配置如下：
+
+#table(
+  columns: (35%, 65%),
+  align: center,
+  table.header(
+    [硬件设备], [配置参数]
+  ),
+
+  [CPU], [Intel(R) Xeon(R) Platinum 8360Y @ 2.40GHz],
+
+  [CPU 核心数], [144 Threads / 72 Cores],
+
+  [GPU], [NVIDIA A100-SXM4-80GB × 8],
+
+  [GPU 显存], [80GB HBM2e],
+
+  [GPU 驱动版本], [550.163.01],
+
+  [CUDA 版本], [CUDA 12.4],
+
+  [内存], [服务器高容量内存环境]
+)
+
+其中，NVIDIA A100 GPU 具有较强并行计算能力，能够显著提高深度卷积神经网络训练速度。同时，多 GPU 环境能够支持大规模数据训练与复杂模型实验。
+
 === 软件环境
+
+本文实验采用 Ubuntu Linux 操作系统，并基于 Python 深度学习环境完成模型训练与测试。具体软件环境配置如下：
+
+#table(
+  columns: (35%, 65%),
+  align: center,
+  table.header(
+    [软件环境], [版本]
+  ),
+
+  [操作系统], [Ubuntu 22.04 LTS],
+
+  [Linux 内核], [5.15.0-94-generic],
+
+  [Python], [Python 3.10.20],
+
+  [PyTorch], [2.5.1],
+
+  [Torchvision], [0.20.1],
+
+  [CUDA], [12.4],
+
+  [OpenCV], [4.13.0],
+
+  [NumPy], [2.0.1],
+
+  [Scikit-learn], [1.7.2]
+)
+
+此外，实验过程中还使用：
+
+- Matplotlib 用于实验结果可视化；
+- THOP 用于模型 FLOPs 与参数量统计；
+- Timm 用于部分模型结构支持；
+- Pandas 用于实验数据分析。
+
+整个实验环境均基于 Conda 虚拟环境进行管理，以保证实验依赖稳定性与可复现性。
+
 === PyTorch 深度学习框架
 
+本文实验基于 PyTorch 深度学习框架完成模型设计、训练与测试。PyTorch 是目前主流深度学习框架之一，具有动态图机制灵活、开发效率高以及 GPU 加速支持完善等特点，因此被广泛应用于计算机视觉研究领域。
+
+在模型训练过程中，本文主要使用 PyTorch 完成以下功能：
+
+- 神经网络模型构建；
+- 数据加载与预处理；
+- 前向传播与反向传播；
+- GPU 并行训练；
+- 模型参数保存与加载；
+- 损失函数与优化器实现。
+
+此外，PyTorch 对 CUDA GPU 具有良好支持，能够充分利用 NVIDIA A100 GPU 的并行计算能力，提高模型训练效率。
+
+在实验过程中，本文采用 Adam 优化器完成模型参数更新，并使用交叉熵损失函数进行多分类训练。同时，利用 DataLoader 实现数据批量加载，提高训练过程中的数据读取效率。
+
+相比传统深度学习框架，PyTorch 具有更好的可扩展性与代码可读性，能够方便实现本文提出的 Dynamic Receptive Field Block 等自定义网络结构。
+
 == 模型训练参数设置
+
+为了保证实验结果的稳定性与模型训练效率，本文对模型训练过程中的 Batch Size、学习率、优化器以及损失函数等关键参数进行了统一设置。所有模型均在相同实验环境下完成训练，以保证实验结果具有公平性与可比性。
+
 === Batch Size 设置
+
+Batch Size 表示每次迭代过程中输入模型的样本数量，其大小会直接影响模型训练速度与显存占用情况。
+
+本文实验服务器采用 NVIDIA A100-SXM4-80GB GPU，具有较大显存容量，因此能够支持较大的 Batch Size 设置。综合考虑训练稳定性与显存消耗，本文最终将 Batch Size 设置为：
+
+$"Batch_Size" = 32$
+
+较大的 Batch Size 能够提高 GPU 并行计算效率，同时降低梯度波动，提高模型训练稳定性。
+
+此外，训练过程中采用 PyTorch DataLoader 进行数据批量加载，并结合多线程数据读取方式提高数据加载效率。其中：
+
+--num_workers 设置为 16；
+
+--prefetch_factor 设置为 2。
+
+该设置能够有效减少数据读取过程中的 CPU 与 GPU 等待时间，提高整体训练效率。
+
 === 学习率设置
+
+学习率（Learning Rate）用于控制模型参数更新幅度，是影响模型收敛速度与训练稳定性的关键参数之一。
+
+若学习率过大，模型容易出现震荡甚至无法收敛；若学习率过小，则会导致训练速度较慢，甚至陷入局部最优。
+
+本文实验初始学习率设置为：
+
+$lr = 0.0005$
+
+同时，为提高模型后期训练稳定性，本文采用 StepLR 学习率衰减策略。在训练过程中，每经过一定 Epoch 后自动降低学习率，其参数设置如下：
+
+--step\_size = 20
+
+--gamma = 0.1
+
+即每训练 20 个 Epoch，学习率缩小为原来的：$0.1$
+
+该方法能够在训练前期保持较快收敛速度，同时在后期提高模型稳定性与最终识别精度。
+
 === 优化器选择
+
+优化器用于根据损失函数计算结果更新模型参数，不同优化器会对模型收敛速度与最终性能产生影响。
+
+本文采用 Adam（Adaptive Moment Estimation）优化器完成模型训练，其具有自适应学习率调整能力，能够结合梯度一阶矩与二阶矩信息动态更新模型参数。
+
+相比传统 SGD 优化器，Adam 具有：
+
+- 收敛速度更快；
+- 参数更新更加稳定；
+- 更适合复杂深度网络训练。
+
+本文优化器参数设置如下：
+
+#table(
+  columns: (40%, 60%),
+  align: center,
+  table.header(
+    [参数], [设置值]
+  ),
+
+  [优化器], [Adam],
+
+  [学习率], [0.0005],
+
+  [Weight Decay], [$1 times 10^(-4)$]
+)
+
+其中，Weight Decay 用于实现 L2 正则化，从而减轻模型过拟合问题，提高模型泛化能力。
+
 === 损失函数设置
 
+由于人脸表情识别数据集通常存在类别不平衡问题，例如：
+
+- Happy 类样本较多；
+- Disgust 与 Fear 类样本较少。
+
+若直接采用普通交叉熵损失函数，模型容易偏向样本数量较多的类别，从而影响整体识别性能。
+
+因此，本文采用 Focal Loss 作为模型损失函数，并结合类别权重机制增强模型对困难样本与少样本类别的学习能力。
+
+Focal Loss 在交叉熵损失基础上增加难样本调节因子，其能够降低易分类样本对整体损失的影响，使模型更加关注难分类样本。
+
+本文设置：
+
+$gamma = 2.0$
+
+同时，根据训练集类别分布动态计算类别权重，并对权重进行平方根平滑处理，从而减轻类别不平衡问题。
+
+最终损失函数形式如下：
+
+$"Loss = FocalLoss(weight,gamma)"$
+
+实验结果表明，采用 Focal Loss 后，模型在 Fear、Disgust 等少样本类别上的识别准确率得到明显提升，提高了整体模型鲁棒性与分类性能。
+
 == 模型对比实验
+
+为了验证本文提出 Dynamic-MobileNetV3Small 模型的有效性，本文选取 ResNet18、ResNet18 + CBAM、ResNet18 + Transformer、MobileNetV1、MobileNetV2 以及 MobileNetV3Small 等多种主流模型进行对比实验。
+
+实验主要从模型准确率、参数规模、FLOPs、F1-Score 以及推理效率等方面进行综合分析，从而验证本文模型在轻量化与识别性能之间的平衡能力。
+
+各模型实验结果如表所示。
+
+#{
+  // 读取文件，分隔符可以为分号
+  let result = csv("data/output_模型性能对比表_含RAF-DB.csv_20260512_132808.csv", delimiter: ",")
+
+  // 获取列数
+  let m = result.at(0).len()
+
+  // 获取表头
+  let head = result.at(0)
+
+  // 获取数据部分
+  let data = result.slice(1)
+
+  tablex(
+    ..data.flatten(), // 将数据展平
+    header: head, // 显示表头
+    columns: m, // 设置列数
+    caption: [Fer-plus各类别统计],
+    label-name: "class-stats2",
+  )
+}
+
 === 不同模型准确率对比
+
+从实验结果可以看出，传统 ResNet18 模型虽然具有较强特征提取能力，但由于网络结构较为庞大，其整体准确率仅达到：
+
+$74.23%$
+
+在引入 CBAM 注意力机制后，ResNet-CBAM 模型准确率提升至：
+
+$75.17%$
+
+说明注意力机制能够增强模型对关键表情区域的关注能力，从而提高识别性能。
+
+ResNet-Transformer 模型通过引入 Transformer 全局特征建模结构，准确率进一步提升至：
+
+$78.54%$
+
+但其计算复杂度显著增加，GFLOPs 高达：
+
+$28.43$
+
+难以满足轻量化实时识别需求。
+
+相比传统卷积网络，MobileNet 系列模型表现出更好的轻量化性能。其中：
+
+- MobileNetV1 准确率为 $77.48%$
+- MobileNetV2 准确率为 $79.21%$
+- MobileNetV3Small 准确率达到 $81.23%$
+
+说明轻量化网络在保持较低计算复杂度的同时，仍能够取得较好识别性能。
+
+本文提出的 Dynamic-MobileNetV3Small 模型最终取得：
+
+$82.73%$
+
+的总体识别准确率，相比原始 MobileNetV3Small 提升约：
+
+$1.5%$
+
+验证了动态感受野机制对于表情特征提取的有效性。
+
 === 参数量与 FLOPs 对比
+
+从模型规模与计算复杂度角度分析，ResNet 系列模型整体参数量与 FLOPs 较高。
+
+其中：
+
+- ResNet18 模型大小为 $11.18"MB"$
+- ResNet-Transformer 达到 $11.99"MB"$
+
+同时，Transformer 结构引入后模型计算量显著增加，不利于移动端部署。
+
+相比之下，MobileNet 系列模型采用深度可分离卷积结构，大幅降低了模型参数量与计算复杂度。
+
+其中：
+
+- MobileNetV3Small 模型大小仅为 $1.53"MB"$
+- FLOPs 为 $0.06$
+
+本文提出的 Dynamic-MobileNetV3Small 模型在引入动态感受野结构后，模型大小进一步降低至：
+
+$1.23"MB"$
+
+同时整体计算量仅为：
+
+$0.05 "GFLOPs"$
+
+说明本文提出的方法在增强模型特征表达能力的同时，并未明显增加模型复杂度，仍然保持较强轻量化特性。
+
 === F1-Score 对比
+
+F1-Score 能够综合反映模型精确率与召回率，因此更加适用于类别不平衡的人脸表情识别任务。
+
+实验结果表明：
+
+- ResNet18 F1-Score 为 $72.73%$
+- ResNet-CBAM 提升至 $74.82%$
+- ResNet-Transformer 达到 $77.21%$
+
+而 MobileNet 系列整体表现更加优秀：
+
+- MobileNetV1 为 $77.10%$
+- MobileNetV2 为 $78.88%$
+- MobileNetV3Small 达到 $80.03%$
+
+本文提出的 Dynamic-MobileNetV3Small 最终取得：
+
+$82.24%$
+
+的 F1-Score，为所有模型中最高。
+
+说明本文提出的动态感受野结构能够更加有效地提取复杂表情特征，提高模型整体分类性能，尤其在少样本类别中具有更好鲁棒性。
+
 === 推理效率对比
+
+在人脸表情识别任务中，模型推理效率对于实时应用具有重要意义。
+
+传统 ResNet 与 Transformer 类模型虽然具有较强特征表达能力，但由于参数量与 FLOPs 较高，其推理速度相对较慢。
+
+特别是 ResNet-Transformer 模型，其 GFLOPs 高达：
+
+$28.43$
+
+在移动端设备中难以实现实时部署。
+
+相比之下，MobileNet 系列模型由于采用深度可分离卷积结构，能够显著提高推理效率。
+
+其中，Dynamic-MobileNetV3Small 在仅：
+
+$0.05 "GFLOPs"$
+
+计算量条件下实现：
+
+$82.73%$
+
+准确率，说明其能够在保证较高识别性能的同时保持较快推理速度。
+
+综合实验结果表明，本文提出的 Dynamic-MobileNetV3Small 模型在模型大小、计算复杂度以及识别性能之间取得了较好平衡，更适用于移动端与边缘设备中的实时表情识别任务。
 
 == 消融实验
 === CLAHE 光照增强实验
@@ -786,28 +1305,6 @@ $
 === 多尺度特征提取效果分析
 === 轻量化与准确率平衡分析
 === 模型优势与不足
-
-
-= 表情识别系统实现
-
-== 系统需求分析
-=== 功能需求
-=== 性能需求
-
-== 系统整体设计
-=== 系统架构设计
-=== 模块划分
-
-== 模型部署与推理
-=== 模型保存与加载
-=== 推理流程设计
-=== 实时识别实现
-
-== 系统运行结果展示
-=== 表情识别结果展示
-=== 系统界面展示
-=== 实际运行效果分析
-
 
 = 总结与展望
 
@@ -825,383 +1322,6 @@ $
 === 当前模型存在的问题
 === 后续优化方向
 === 表情识别未来研究趋势
-
-
-= 参考文献
-
-
-= 附录
-
-== 关键代码
-== 实验配置文件
-== 部分实验结果数据
-
-
-= 致谢
-
-
-// 111111111111111111111111111111111111
-
-= 一级标题
-
-== 引言
-
-学位论文......
-
-=== 三级标题
-
-......
-
-==== 四级标题
-
-......
-
-== 本文研究主要内容
-
-本文......
-
-== 本文研究意义
-
-本文......
-
-== 本章小结
-
-本文......
-
-= 格式要求
-
-
-正文各章节应拟标题，每章结束后应另起一页。标题要简明扼要，不应使用标点符号。各章、节、条的层次，可以按照“1……、1.1……、1.1.1……”标识，条以下具体款项的层次依次按照“1.1.1.1”或“（1）”、“①”等标识。各学院根据实际情况，可自行规定层次格式，但学院之内建议格式统一，以清晰无误为准。
-
-正文是毕业论文的主体和核心部分，不同学科专业和不同的选题可以有不同的写作方式。正文一般包括以下几个方面。
-
-== 引言或背景
-引言是论文正文的开端，引言应包括毕业论文选题的背景、目的和意义；对国内外研究现状和相关领域中已有的研究成果的简要评述；介绍本项研究工作研究设想、研究方法或实验设计、理论依据或实验基础；涉及范围和预期结果等。要求言简意赅，注意不要与摘要雷同或成为摘要的注解。
-
-== 主体
-论文主体是毕业论文的主要部分，必须言之成理，论据可靠，严格遵循本学科国际通行的学术规范。在写作上要注意结构合理、层次分明、重点突出，章节标题、公式图表符号必须规范统一。论文主体的内容根据不同学科有不同的特点，一般应包括以下几个方面：
-+ 毕业设计（论文）总体方案或选题的论证；
-+ 毕业设计（论文）各部分的设计实现，包括实验数据的获取、数据可行性及有效性的处理与分析、各部分的设计计算等；
-+ 对研究内容及成果的客观阐述，包括理论依据、创新见解、创造性成果及其改进与实际应用价值等；
-+ 论文主体的所有数据必须真实可靠，自然科学论文应推理正确、结论清晰；人文和社会学科的论文应把握论点正确、论证充分、论据可靠，恰当运用系统分析和比较研究的方法进行模型或方案设计，注重实证研究和案例分析，根据分析结果提出建议和改进措施等。
-
-== 结论
-结论是毕业论文的总结，是整篇论文的归宿。应精炼、准确、完整。着重阐述自己的创造性成果及其在本研究领域中的意义、作用，还可进一步提出需要讨论的问题和建议。
-
-= 图表格式
-
-== 图格式
-=== 单张图片
-#imagex(
-  image("figures/energy-distribution.png", width: 70%),
-  caption: [示例图片],
-  label-name: "image1",
-)
-
-=== 多个子图
-#imagex(
-  subimagex(
-    image("figures/energy-distribution.png", width: 70%),
-    caption: "子图a",
-    label-name: "sub1",
-  ),
-  subimagex(image("figures/energy-distribution.png", width: 70%)),
-  subimagex(image("figures/energy-distribution.png", width: 70%)),
-  subimagex(image("figures/energy-distribution.png", width: 70%)),
-  columns: 2,
-  caption: [示例子图],
-  label-name: "image2",
-  placement: none, // 默认 none, 即图片会强制显示在当前位置; 还可以设置为 auto, top, bottom, 分别表示自动、顶部、底部 (推荐使用 auto)
-)
-
-#pagebreak()
-
-== 表格格式
-
-表格可以在换页的时候自然断开并显示“续表xxxx”，如果需要令表显示在整页中，请将表中的`breakable`设置为`false`。
-
-#tablex(
-  ..for i in range(5) {
-    ([250], [88], [5900], [1.65])
-  },
-  header: (
-    [感应频率 #linebreak() (kHz)],
-    [感应发生器功率 #linebreak() (%×80kW)],
-    [工件移动速度 #linebreak() (mm/min)],
-    [感应圈与零件间隙 #linebreak() (mm)],
-  ),
-  columns: (1fr, 1fr, 1fr, 1fr),
-  caption: [示例表格],
-  label-name: "table1",
-  breakable: true,
-)
-
-== 公式格式
-
-$ 1 / mu nabla^2 Alpha - j omega sigma Alpha - nabla(1 / mu) times (nabla times Alpha) + J_0 = 0 $<equation>
-
-#h(-2em)其中$mu$是材料的磁导率，$sigma$是材料的电导率，$omega$是电磁波的角频率，$Alpha$是电磁场的矢量位，$J_0$是电流密度。使用```typst #h(-2em)```取消这一行前面的缩进。
-
-#pagebreak()
-
-== 算法格式
-算法和表格一样也是换页的时候自然断开并显示“续算法xxxx”。
-#[
-  #import "@preview/lovelace:0.2.0": *
-  #algox(
-    label-name: "algorithm",
-    caption: [欧几里得辗转相除],
-    breakable: true,
-    pseudocode(
-      no-number,
-      [#h(-1.25em) *input:* integers $a$ and $b$],
-      no-number,
-      [#h(-1.25em) *output:* greatest common divisor of $a$ and $b$],
-      [*while* $a != b$ *do*],
-      ind,
-      [*if* $a > b$ *then*],
-      ind,
-      $a <- a - b$,
-      ded,
-      [*else*],
-      ind,
-      $b <- b - a$,
-      ded,
-      [*end*],
-      ded,
-      [*end*],
-      [*return* $a$],
-    ),
-  )
-]
-
-也可以直接插入代码：
-#algox(
-  caption: [欧几里得辗转相除C++实现],
-  [
-    ```cpp
-    #include <bits/stdc++.h>
-    using namespace std;
-    int gcd(int a, int b) {
-      while (a != b) {
-        if (a > b) a -= b;
-        else b -= a;
-      }
-      return a;
-    }
-    ```
-  ],
-)
-
-= 引用格式
-
-== 常规引用
-
-#tablex(
-  header: (
-    [引用对象],
-    [效果],
-    [原始代码],
-  ),
-  [表格],
-  [我要引用@tbl:table1],
-  [```typst 我要引用@tbl:table```],
-  table.cell(
-    rowspan: 2,
-    align: horizon,
-  )[图片],
-  [我要引用@img:image1],
-  [```typst 我要引用@img:image1```],
-  [我要引用@img:image2:sub1],
-  [```typst 我要引用@img:subfigures1:test```],
-  [算法],
-  [我要引用@algo:algorithm],
-  [```typst 我要引用@algo:algorithm```],
-  [公式],
-  [我要引用@eqt:equation],
-  [```typst 我要引用@eqt:equation```],
-  columns: (1fr, 1fr, 1fr),
-  caption: [常规引用示例表],
-)
-
-另一种函数引用方法: ```typst #ref(<img:image1>)```
-
-== 章节引用<main_test>
-
-我要引用@main_test：```typst 我要引用@main_test ```
-
-我要引用#ref(<appendix1>)：```typst 我要引用#ref(<appendix1>)```
-
-== 页面引用
-请注意#ref(<jump>, form: "page") 的```typst #bib```函数，它会因为`citation.full`参数变化而发生变化。
-
-#pagebreak()
-
-== 文献引用
-
-#tablex(
-  header: (
-    [引用对象],
-    [效果],
-    [原始代码],
-  ),
-  [句子末尾引用],
-  [Typst很厉害@liu_survey_2024],
-  [```typst Typst很厉害@liu_survey_2024```],
-
-  [句子末尾引用],
-  [Typst很厉害#citex(<test>)],
-  [```typst Typst很厉害#citex(<test>)```],
-
-  [句子内部引用],
-  [文献#citex(<liu_survey_2024>, sup: false)说Typst很厉害],
-  text(0.7em)[```typst 文献#citex(<liu_survey_2024>,sup:false) 说Typst很厉害```],
-
-  table.hline(stroke: 0.2pt),
-
-  [用别的格式的引用(自行查阅参数)],
-  [#citex(<liu_survey_2024>, style: "future-science", form: "prose")\ 这些人说的],
-  text(0.8em)[```typst #citex(<liu_survey_2024>,style: "future-science", form:"prose")
-    \ 这些人说的```],
-
-  alignment: left + horizon,
-  columns: (1fr, 1.5fr, 2fr),
-  caption: [文献引用示例表],
-  label-name: "table2",
-)
-
-当`citation`中的`sup`为`true`的时候，所有的不标注`sup`的引用默认不为右上标；当`citation`中的`sup`为`true`的时候，所有的不标注`sup`的引用默认为右上标。
-
-使用别的格式时`sup`失效。
-
-= 高级格式
-
-== 数据表格
-
-无论是LaTex还是Word，将大量的数据制作成表格往往是一个非常复杂的过程。更何况这些实验数据日后可能还会变更，那么又要对表格的部分内容进行调整（比如加粗数据最大的那一项），这里给出一个制作数据表格的快捷方法，大致的流程是：
-+ 将数据保存为CSV格式（Excel等均支持该格式）；
-+ 使用Typst读取；
-+ 排版并处理数据。
-#ref(<tbl:data1>)是一个简单的例子：
-
-#{
-  // 读取文件，分隔符可以为分号
-  let result = csv("data/heros.csv", delimiter: ",")
-
-  // 获取列数
-  let m = result.at(0).len()
-
-  // 获取表头
-  let head = result.at(0)
-
-  // 获取数据部分
-  let data = result.slice(1)
-
-  tablex(
-    ..data.flatten(), // 将数据展平
-    header: head, // 显示表头
-    columns: m, // 设置列数
-    caption: [超级英雄能力表],
-    label-name: "data1",
-  )
-}
-
-#ref(<tbl:data2>)是一个更复杂的例子：
-
-#let colors = (
-  rgb(214, 38, 40, 255),
-  rgb(43, 160, 43, 255),
-  rgb(158, 216, 229, 255),
-  rgb(114, 158, 206, 255),
-  rgb(204, 204, 91, 255),
-  rgb(255, 186, 119, 255),
-  rgb(147, 102, 188, 255),
-  rgb(30, 119, 181, 255),
-  rgb(188, 188, 33, 255),
-  rgb(255, 127, 12, 255),
-  rgb(196, 175, 214, 255),
-)
-
-#{
-  let results = csv("data/nyuv2.csv", delimiter: ",")
-  let m = results.at(0).len()
-  let head = results.at(0)
-
-  // 将中间的标签旋转90度
-  for y in range(m - 3) {
-    head.at(y + 2) = rotate(
-      90deg,
-      stack(dir: ltr, box(fill: colors.at(y), inset: 4pt), head.at(y + 2)),
-      reflow: true,
-    )
-  }
-  let data = results.slice(1)
-
-  // 将数据中的最大项找出并加粗
-  for y in range(1, m) {
-    // 去除非数据元素
-    let col_num = data.map(row => row.at(y)).filter(it => it.contains(regex("\d")))
-
-    // 找出最大值
-    let max_val = col_num.map(float).reduce(calc.max)
-
-    // 加粗最大值
-    data = data.map(row => {
-      let item = row.at(y)
-      if item.contains(regex("\d")) and float(item) == max_val {
-        row.at(y) = [#strong(item)]
-      }
-      row
-    })
-  }
-  tablex(
-    table.vline(x: 2, stroke: 0.2pt),
-    table.vline(x: m - 1, stroke: 0.2pt),
-    ..data.flatten(),
-    header: head,
-    columns: (15%, 7%, ..(auto,) * 11, 8%),
-    caption: [主流模型在NYUv2数据集下的性能表现],
-    label-name: "data2",
-  )
-}
-#pagebreak()
-
-== 流程图绘制
-
-使用#link("https://typst.app/universe/package/fletcher", underline([Fletcher]))可以绘制流程图，点击横线处链接查看使用文档。
-
-#imagex(
-  image("figures/fletcher.png"),
-  caption: [Fletcher示例],
-)
-
-#pagebreak()
-
-== 复杂图形绘制
-
-Fletcher是基于#link("https://typst.app/universe/package/cetz", underline([CeTZ]))的，CeTZ可以绘制更复杂的图形，点击横线处链接查看使用文档。
-
-#imagex(
-  image("figures/cetz.png"),
-  caption: [CeTZ示例],
-)
-
-#pagebreak()
-
-== LaTex公式
-如果你不习惯Typst的公式，可以使用#link("https://typst.app/universe/package/mitex", underline([MiTex]))，点击横线处链接查看使用文档。
-
-#import "@preview/mitex:0.2.6": *
-
-行内公式如下：#mi("x") 或 #mi[y]。
-
-块级公式如#ref(<eqt:equation1>)：
-#mitex(`
-  \newcommand{\f}[2]{#1f(#2)}
-  \f\relax{x} = \int_{-\infty}^\infty
-    \f\hat\xi\,e^{2 \pi i \xi x}
-    \,d\xi
-`)<equation1>
 
 // 显示结论
 #conclusion[
