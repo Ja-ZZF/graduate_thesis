@@ -25,15 +25,11 @@
     date: "2026年2月31日起5月32日止",
   ),
   fonts: (
-    fallback: false, // 为true时字体缺失时使用系统默认，不显示豆腐块
-    // 模版内置了一定的字体调用顺序，但可能与系统的不一致，出现这种情况是先在Tinyminst->Tool->Fonts的字体库中找到字体名称，然后在下面填入即可
-    // 可以配置的字体有：songti, heiti, kaiti, fangsong, dengkuan
-    // 正文为songti，标题为heiti，代码为dengkuan
-    // 下面是使用示例：
-    songti: (
-      (name: "Times New Roman", covers: "latin-in-cjk"), // 先指定英文字体
-      "簡宋", // 中文字体
-    ),
+    fallback: true,
+    songti: ("Noto Serif CJK SC", ), // 思源宋体，效果优于 SimSun
+    heiti: ("Noto Sans CJK SC", ),   // 思源黑体，效果优于 SimHei
+    kaiti: ("AR PL UKai CN", ),      // 文鼎PL中楷，Fedora中常见的开源楷体
+    dengkuan: ("JetBrains Mono", ),  // 等宽字体，用于代码
   ),
   title-line-length: 260pt, // 如果题目换行不好看，可以在这里适当修改换行的长度
   math-level: 2, // 选择公式编号层级
