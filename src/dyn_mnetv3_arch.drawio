@@ -1,0 +1,136 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Dynamic-MobileNetV3Small架构" id="dyn-mnetv3">
+    <mxGraphModel dx="1336" dy="823" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="900" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="input" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;fontStyle=1;strokeWidth=2;" value="Input&#xa;224×224×3" vertex="1">
+          <mxGeometry height="45" width="110" x="310" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="conv1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666;fontSize=10;strokeWidth=2;" value="Conv2d 3×3, s=2&#xa;+ BN + h-swish&#xa;112×112×16" vertex="1">
+          <mxGeometry height="50" width="150" x="290" y="125" as="geometry" />
+        </mxCell>
+        <mxCell id="YXiX_smev4rq0GwOamLf-13" edge="1" parent="1" source="b1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;" target="b2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="b1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;strokeWidth=2;" value="Block-1 (标准)&#xa;3×3 DWConv, s=2&#xa;112×112×16" vertex="1">
+          <mxGeometry height="45" width="150" x="290" y="195" as="geometry" />
+        </mxCell>
+        <mxCell id="YXiX_smev4rq0GwOamLf-14" edge="1" parent="1" source="b2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;" target="b3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="b2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;strokeWidth=2;" value="Block-2 (标准)&#xa;3×3 DWConv, s=2&#xa;56×56×24" vertex="1">
+          <mxGeometry height="45" width="150" x="290" y="255" as="geometry" />
+        </mxCell>
+        <mxCell id="YXiX_smev4rq0GwOamLf-3" edge="1" parent="1" source="b3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;" target="b4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="b3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;strokeWidth=2;" value="Block-3 (标准)&#xa;3×3 DWConv, s=2&#xa;28×28×24" vertex="1">
+          <mxGeometry height="45" width="150" x="290" y="315" as="geometry" />
+        </mxCell>
+        <mxCell id="drf_left_label" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=2;dashed=1;" value="" vertex="1">
+          <mxGeometry height="170" width="240" x="290" y="460" as="geometry" />
+        </mxCell>
+        <mxCell id="drf_left_title" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=11;fontStyle=1;fontColor=#d6b656;strokeWidth=2;" value="Dynamic Receptive Field Block" vertex="1">
+          <mxGeometry height="20" width="240" x="290" y="462" as="geometry" />
+        </mxCell>
+        <mxCell id="drf_left_conv1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=10;fontStyle=1;strokeWidth=2;" value="DRF Block-4&#xa;(替换标准DWConv)&#xa;28×28×40" vertex="1">
+          <mxGeometry height="50" width="200" x="310" y="490" as="geometry" />
+        </mxCell>
+        <mxCell id="drf_left_detail" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff4e6;strokeColor=#d79b00;fontSize=9;strokeWidth=2;" value="并行 3×3 &amp; 5×5 DWConv&#xa;+ 自适应权重融合&#xa;(GAP→FC→Softmax→Weighted Sum)" vertex="1">
+          <mxGeometry height="55" width="220" x="300" y="555" as="geometry" />
+        </mxCell>
+        <mxCell id="YXiX_smev4rq0GwOamLf-4" edge="1" parent="1" source="b4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;" target="b5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="b4" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=10;fontStyle=1;strokeWidth=2;" value="DRF Block-4&#xa;多尺度 DWConv&#xa;14×14×40" vertex="1">
+          <mxGeometry height="50" width="150" x="290" y="380" as="geometry" />
+        </mxCell>
+        <mxCell id="YXiX_smev4rq0GwOamLf-10" edge="1" parent="1" source="b5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;" target="b6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="b5" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;strokeWidth=2;" value="Block-5 (标准)&#xa;3×3 DWConv, s=1&#xa;14×14×40" vertex="1">
+          <mxGeometry height="45" width="150" x="520" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="YXiX_smev4rq0GwOamLf-11" edge="1" parent="1" source="b6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;" target="b7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="b6" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=10;fontStyle=1;strokeWidth=2;" value="DRF Block-6&#xa;多尺度 DWConv, s=2&#xa;14×14×80" vertex="1">
+          <mxGeometry height="50" width="150" x="520" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="YXiX_smev4rq0GwOamLf-12" edge="1" parent="1" source="b7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;" target="b8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="b7" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;strokeWidth=2;" value="Block-7 (标准)&#xa;3×3 DWConv, s=1&#xa;14×14×80" vertex="1">
+          <mxGeometry height="45" width="150" x="520" y="185" as="geometry" />
+        </mxCell>
+        <mxCell id="YXiX_smev4rq0GwOamLf-5" edge="1" parent="1" source="b8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;" target="b9">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="b8" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;strokeWidth=2;" value="Block-8 (标准)&#xa;3×3 DWConv, s=1&#xa;14×14×80" vertex="1">
+          <mxGeometry height="45" width="150" x="520" y="247.5" as="geometry" />
+        </mxCell>
+        <mxCell id="YXiX_smev4rq0GwOamLf-6" edge="1" parent="1" source="b9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;" target="b10">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="b9" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=10;fontStyle=1;strokeWidth=2;" value="DRF Block-9&#xa;多尺度 DWConv, s=2&#xa;7×7×112" vertex="1">
+          <mxGeometry height="50" width="150" x="520" y="315" as="geometry" />
+        </mxCell>
+        <mxCell id="YXiX_smev4rq0GwOamLf-8" edge="1" parent="1" source="b10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;" target="conv_last">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="b10" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;strokeWidth=2;" value="Block-10 (标准)&#xa;5×5 DWConv, s=1&#xa;7×7×112" vertex="1">
+          <mxGeometry height="45" width="150" x="520" y="382.5" as="geometry" />
+        </mxCell>
+        <mxCell id="conv_last" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666;fontSize=10;strokeWidth=2;" value="Conv2d 1×1&#xa;+ BN + h-swish&#xa;7×7×960" vertex="1">
+          <mxGeometry height="50" width="150" x="720" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="pool" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666;fontSize=10;strokeWidth=2;" value="Global Avg Pool&#xa;1×1×960" vertex="1">
+          <mxGeometry height="40" width="120" x="735" y="130" as="geometry" />
+        </mxCell>
+        <mxCell id="fc1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666;fontSize=10;strokeWidth=2;" value="FC + h-swish&#xa;960 → 1024" vertex="1">
+          <mxGeometry height="40" width="120" x="735" y="197.5" as="geometry" />
+        </mxCell>
+        <mxCell id="dropout" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666;fontSize=10;strokeWidth=2;" value="Dropout" vertex="1">
+          <mxGeometry height="30" width="90" x="750" y="262.5" as="geometry" />
+        </mxCell>
+        <mxCell id="fc2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666;fontSize=10;strokeWidth=2;" value="FC&#xa;1024 → 8" vertex="1">
+          <mxGeometry height="35" width="90" x="750" y="315" as="geometry" />
+        </mxCell>
+        <mxCell id="output" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;fontStyle=1;strokeWidth=2;" value="Softmax Output&#xa;8 类表情" vertex="1">
+          <mxGeometry height="45" width="120" x="735" y="380" as="geometry" />
+        </mxCell>
+        <mxCell id="a0" edge="1" parent="1" source="input" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#555;" target="conv1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a1" edge="1" parent="1" source="conv1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#555;" target="b1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a12" edge="1" parent="1" source="conv_last" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#555;" target="pool">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a13" edge="1" parent="1" source="pool" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#555;" target="fc1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a14" edge="1" parent="1" source="fc1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#555;" target="dropout">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a15" edge="1" parent="1" source="dropout" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#555;" target="fc2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a16" edge="1" parent="1" source="fc2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#555;" target="output">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="params_box" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#999;strokeWidth=2;" value="" vertex="1">
+          <mxGeometry height="140" width="240" x="610" y="490" as="geometry" />
+        </mxCell>
+        <mxCell id="params_title" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=13;fontStyle=1;fontColor=#333;strokeWidth=2;" value="模型关键参数" vertex="1">
+          <mxGeometry height="22" width="200" x="625" y="498" as="geometry" />
+        </mxCell>
+        <mxCell id="params_list" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;fontSize=11;fontColor=#555;strokeWidth=2;" value="• 输入尺寸：224×224×3&#xa;• 模型大小：1.23 MB&#xa;• 参数量：1,226,500&#xa;• 计算量：0.05 GFLOPs&#xa;• SE 注意力：部分 Block 中&#xa;• DRF Block：Block-4/6/9&#xa;• 输出：8 类表情" vertex="1">
+          <mxGeometry height="98" width="215" x="625" y="522" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

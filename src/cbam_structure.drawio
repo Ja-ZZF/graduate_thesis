@@ -1,0 +1,130 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="CBAM注意力机制" id="cbam">
+    <mxGraphModel dx="1336" dy="823" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1000" pageHeight="650" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=16;fontStyle=1;fontColor=#1a1a2e;" value="CBAM (Convolutional Block Attention Module) 结构图" vertex="1">
+          <mxGeometry height="35" width="600" x="200" y="15" as="geometry" />
+        </mxCell>
+        <mxCell id="input" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;fontStyle=1;strokeWidth=2;" value="输入特征图 F&#xa;(C × H × W)" vertex="1">
+          <mxGeometry height="55" width="130" x="40" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="cam_box" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;dashed=1;opacity=30;" value="" vertex="1">
+          <mxGeometry height="220" width="400" x="220" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="cam_label" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=13;fontStyle=1;fontColor=#6c8ebf;" value="通道注意力模块 (Channel Attention)" vertex="1">
+          <mxGeometry height="25" width="300" x="260" y="62" as="geometry" />
+        </mxCell>
+        <mxCell id="cam_maxpool" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666;fontSize=11;strokeWidth=1;" value="MaxPool" vertex="1">
+          <mxGeometry height="35" width="90" x="250" y="105" as="geometry" />
+        </mxCell>
+        <mxCell id="cam_avgpool" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666;fontSize=11;strokeWidth=1;" value="AvgPool" vertex="1">
+          <mxGeometry height="35" width="90" x="250" y="155" as="geometry" />
+        </mxCell>
+        <mxCell id="cam_mlp" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;fontStyle=1;strokeWidth=1;" value="Shared MLP&#xa;(C/r → C)" vertex="1">
+          <mxGeometry height="55" width="90" x="380" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="cam_add" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666;fontSize=14;fontStyle=1;strokeWidth=1;" value="⊕" vertex="1">
+          <mxGeometry height="30" width="30" x="510" y="132.5" as="geometry" />
+        </mxCell>
+        <mxCell id="cam_sigmoid" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666;fontSize=11;strokeWidth=1;" value="Sigmoid" vertex="1">
+          <mxGeometry height="35" width="40" x="560" y="130" as="geometry" />
+        </mxCell>
+        <mxCell id="cam_weight" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;fontStyle=1;strokeWidth=2;" value="Mc(F)&#xa;通道权重" vertex="1">
+          <mxGeometry height="45" width="40" x="560" y="180" as="geometry" />
+        </mxCell>
+        <mxCell id="cam_mul" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=14;fontStyle=1;strokeWidth=1;" value="⊗" vertex="1">
+          <mxGeometry height="35" width="35" x="640" y="115" as="geometry" />
+        </mxCell>
+        <mxCell id="cam_out" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;fontStyle=1;strokeWidth=2;" value="F&#39;" vertex="1">
+          <mxGeometry height="50" width="60" x="710" y="107.5" as="geometry" />
+        </mxCell>
+        <mxCell id="cam_a1" edge="1" parent="1" source="input" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;" target="cam_maxpool">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="cam_a2" edge="1" parent="1" source="input" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;" target="cam_avgpool">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="cam_a3" edge="1" parent="1" source="cam_maxpool" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;" target="cam_mlp">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="cam_a4" edge="1" parent="1" source="cam_avgpool" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;" target="cam_mlp">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="cam_a5" edge="1" parent="1" source="cam_mlp" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;" target="cam_add">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="cam_a6" edge="1" parent="1" source="cam_add" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;" target="cam_sigmoid">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="cam_a7" edge="1" parent="1" source="cam_sigmoid" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;" target="cam_weight">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="cam_a9" edge="1" parent="1" source="cam_weight" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;" target="cam_mul">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="cam_a10" edge="1" parent="1" source="cam_mul" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;" target="cam_out">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="sam_box" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=2;dashed=1;opacity=30;" value="" vertex="1">
+          <mxGeometry height="180" width="700" x="100" y="300" as="geometry" />
+        </mxCell>
+        <mxCell id="sam_label" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=13;fontStyle=1;fontColor=#82b366;" value="空间注意力模块 (Spatial Attention)" vertex="1">
+          <mxGeometry height="25" width="300" x="280" y="302" as="geometry" />
+        </mxCell>
+        <mxCell id="sam_maxpool" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666;fontSize=10;strokeWidth=1;" value="MaxPool&#xa;(沿通道)" vertex="1">
+          <mxGeometry height="40" width="90" x="150" y="350" as="geometry" />
+        </mxCell>
+        <mxCell id="sam_avgpool" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666;fontSize=10;strokeWidth=1;" value="AvgPool&#xa;(沿通道)" vertex="1">
+          <mxGeometry height="40" width="90" x="150" y="405" as="geometry" />
+        </mxCell>
+        <mxCell id="sam_concat" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666;fontSize=11;strokeWidth=1;" value="Concat" vertex="1">
+          <mxGeometry height="35" width="70" x="290" y="370" as="geometry" />
+        </mxCell>
+        <mxCell id="sam_conv" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;fontStyle=1;strokeWidth=1;" value="Conv 7×7" vertex="1">
+          <mxGeometry height="35" width="80" x="400" y="370" as="geometry" />
+        </mxCell>
+        <mxCell id="sam_sigmoid" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666;fontSize=11;strokeWidth=1;" value="Sigmoid" vertex="1">
+          <mxGeometry height="35" width="60" x="520" y="370" as="geometry" />
+        </mxCell>
+        <mxCell id="sam_weight" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;fontStyle=1;strokeWidth=2;" value="Ms(F&#39;)&#xa;空间权重" vertex="1">
+          <mxGeometry height="45" width="70" x="620" y="365" as="geometry" />
+        </mxCell>
+        <mxCell id="sam_mul" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=14;fontStyle=1;strokeWidth=1;" value="⊗" vertex="1">
+          <mxGeometry height="35" width="35" x="730" y="370" as="geometry" />
+        </mxCell>
+        <mxCell id="output" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;fontStyle=1;strokeWidth=2;" value="输出特征图 F&#39;&#39;&#xa;(C × H × W)" vertex="1">
+          <mxGeometry height="55" width="150" x="810" y="360" as="geometry" />
+        </mxCell>
+        <mxCell id="sam_a3" edge="1" parent="1" source="sam_maxpool" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;" target="sam_concat">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="sam_a4" edge="1" parent="1" source="sam_avgpool" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;" target="sam_concat">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="sam_a5" edge="1" parent="1" source="sam_concat" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;" target="sam_conv">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="sam_a6" edge="1" parent="1" source="sam_conv" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;" target="sam_sigmoid">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="sam_a7" edge="1" parent="1" source="sam_sigmoid" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;" target="sam_weight">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="sam_a9" edge="1" parent="1" source="sam_weight" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;" target="sam_mul">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="sam_a10" edge="1" parent="1" source="sam_mul" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;" target="output">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="note_cam" parent="1" style="text;html=1;strokeColor=#6c8ebf;fillColor=#dae8fc;align=center;verticalAlign=middle;fontSize=11;fontStyle=2;rounded=1;strokeWidth=1;" value="Mc(F) = σ(MLP(AvgPool(F)) + MLP(MaxPool(F)))" vertex="1">
+          <mxGeometry height="30" width="340" x="250" y="240" as="geometry" />
+        </mxCell>
+        <mxCell id="note_sam" parent="1" style="text;html=1;strokeColor=#82b366;fillColor=#d5e8d4;align=center;verticalAlign=middle;fontSize=11;fontStyle=2;rounded=1;strokeWidth=1;" value="Ms(F&#39;) = σ(Conv⁷ˣ⁷(Concat[AvgPool(F&#39;); MaxPool(F&#39;)]))" vertex="1">
+          <mxGeometry height="30" width="400" x="250" y="440" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

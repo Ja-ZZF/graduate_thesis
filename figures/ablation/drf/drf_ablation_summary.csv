@@ -1,0 +1,14 @@
+Metric,Standard_MobileNetV3,Dynamic_MobileNetV3
+Accuracy,0.786253,0.813076
+Mean_Confidence,0.654191,0.827526
+Parameters_M,1.5261,1.2265
+
+Class,Standard_Acc,Dynamic_Acc,Diff
+Neutral,0.845638,0.832215,-0.013423
+Happiness,0.903226,0.890990,-0.012236
+Surprise,0.802603,0.852495,+0.049892
+Sadness,0.536993,0.694511,+0.157518
+Anger,0.641104,0.739264,+0.098160
+Disgust,0.441176,0.500000,+0.058824
+Fear,0.625000,0.597222,-0.027778
+Contempt,0.148148,0.296296,+0.148148
